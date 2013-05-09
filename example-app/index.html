@@ -7,7 +7,7 @@
 </head>
 <body style="padding-top: 10px">
 
-<div class="container" ng-controller="ctrlGBook1">
+<div class="container" ng-controller="ctrlPeople">
     <h2>AngularJS/CouchDB + CornerCouch Community DB</h2>
     
     <h3>Community DB entries <small>(click for detail)</small></h3>
@@ -17,16 +17,19 @@
         </thead>
         <tbody>
         <tr ng-repeat="row in peopledb.rows" ng-click="rowClick($index)">
-            <td class="span2">{{ row.doc.firstName }}</td>
-            <td class="span6">{{ row.doc.lastName }}</td>
-            <td class="span2">{{ row.doc.twitter.screeName }}</td>
+            <td class="span2">{{ row.doc.personalInformation.firstName }}</td>
+            <td class="span6">{{ row.doc.personalInformation.lastName }}</td>
+            <td class="span2">{{ row.doc.twitter.screenName }}</td>
         </tr>
         </tbody>
     </table>
     <ul class="pager">
-        <li><a ng-click="prevClick()" ng-show="peopledb.prevRows.length">Newer</a></li>
-        <li><a ng-click="nextClick()" ng-show="peopledb.nextRow">Older</a></li>
+        <li><a ng-click="prevClick()" ng-show="peopledb.prevRows.length">&lt;&lt;&lt;</a></li>
+        <li><a ng-click="nextClick()" ng-show="peopledb.nextRow">&gt;&gt;&gt;</a></li>
     </ul>
+    <form name="formNewPeople" class="offset1 span9" ng-submit="submitEntry()">
+    <button class="submit" ng-disabled="formNewPeople.$invalid">New people</button>
+    </form>
     <div class="alert alert-info" ng-show="detail._id">
         <div class="navbar" ng-show="detail._attachments">
         <div class="navbar-inner">
@@ -38,33 +41,47 @@
             </ul>
         </div></div>
         <div class="btn btn-primary span2" style="float: right" ng-click="removeClick()">Remove</div>
-        <h4>{{detail.alias}} wrote at {{detail.utc}} UTC</h4>
+        <h4>{{detail.personalInformation.firstName}} {{detail.personalInformation.lastName}}</h4>
         <p>_id = "{{detail._id}}", _rev ="{{detail._rev}}"</p>
         <form name="formDetail">
-        <div class="btn btn-primary span2" style="float: right" ng-click="updateClick()" ng-show="formDetail.$dirty">Update</div>
-        <input name="subject" type="text" class="span9" ng-model="detail.subject" required>
-        <textarea name="body" rows="5" class="span9" ng-model="detail.body"></textarea>
-        <input type="file" id="upload" class="span9">
-        <div class="btn btn-primary span2" style="float: right" ng-click="attachClick()" ng-hide="formDetail.$dirty">Attach</div>
+            <div class="btn btn-primary span2" style="float: right" ng-click="updateClick()" ng-show="formDetail.$dirty">Update</div>
+            <h4>Personal Information</h4>
+            <label>First Name</label>
+            <input name="details" type="text" class="span9" ng-model="detail.personalInformation.firstName">
+            <label>Last Name</label>
+            <input name="details" type="text" class="span9" ng-model="detail.personalInformation.lastName">
+            <label>Email</label>
+            <input name="details" type="text" class="span9" ng-model="detail.personalInformation.email">
+            <label>Address</label>
+            <input name="details" type="text" class="span9" ng-model="detail.personalInformation.address">
+            <label>City</label>
+            <input name="details" type="text" class="span9" ng-model="detail.personalInformation.city">
+            <label>State</label>
+            <input name="details" type="text" class="span9" ng-model="detail.personalInformation.state">
+            <label>Country</label>
+            <input name="details" type="text" class="span9" ng-model="detail.personalInformation.country">
+            <label>Job Title</label>
+            <input name="details" type="text" class="span9" ng-model="detail.personalInformation.jobTitle">
+            <label>Blog</label>
+            <input name="details" type="text" class="span9" ng-model="detail.personalInformation.blog">
+            <h4>Company</h4>
+            <label>Name</label>
+            <input name="details" type="text" class="span9" ng-model="detail.company.name">
+            <label>Country</label>
+            <input name="details" type="text" class="span9" ng-model="detail.company.country">
+            <label>Address</label>
+            <input name="details" type="text" class="span9" ng-model="detail.company.address">
+            <label>Website</label>
+            <input name="details" type="text" class="span9" ng-model="detail.company.website">
+            <h4>Twitter</h4>
+            <label>Screen name</label>
+            <input name="details" type="text" class="span9" ng-model="detail.twitter.screenName">
+            <h4>Add file attachment</h4>
+            <input type="file" id="upload" class="span9">
+            <div class="btn btn-primary span2" style="float: right" ng-click="attachClick()" ng-hide="formDetail.$dirty">Attach</div>
         </form>
     </div>
     <div class="alert alert-error" ng-show="errordata">{{ errordata | json }}</div>
-    <form name="formNewEntry" class="offset1 span9" ng-submit="submitEntry()">
-
-    <fieldset>
-        <legend>New guestbook entry</legend>
-        <label>An alias of your own choice (required)</label>
-        <input type="text" class="span4" ng-model="newentry.alias" required>
-        <label>Your mail address (not shown, but available via FireBug)</label>
-        <input type="email" class="span4" ng-model="newentry.email">
-        <label>Your subject line (required)</label>
-        <input type="text" class="span9" ng-model="newentry.subject" required>
-        <label>Your message</label>
-        <textarea rows="5" class="span9" ng-model="newentry.body"></textarea>
-    </fieldset>
-    <label>Submit your entry here</label>
-    <button class="submit" ng-disabled="formNewEntry.$invalid">Submit</button>
-    </form>
 </div>
 
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
@@ -72,27 +89,14 @@
 <script>
 angular.module('CouchApp', ['CornerCouch']);
 
-function ctrlGBook1($scope, $filter, cornercouch) {
+function ctrlPeople($scope, $filter, cornercouch) {
     
     $scope.server = cornercouch();
     $scope.server.session();
     $scope.peopledb = $scope.server.getDB('example');
     $scope.newentry = $scope.peopledb.newDoc();
-    $scope.peopledb.query("example-app", "utc_only", { include_docs: true, descending: true, limit: 8 });
-    
-    $scope.submitLogin = function() {
-        $scope.server.login($scope.loginUser, $scope.loginPass)
-            .success( function() {
-                $scope.loginPass = $scope.loginUser = '';
-                $scope.showInfo = true;
-                $scope.server.getInfo();
-                $scope.server.getDatabases();
-                $scope.server.getUUIDs(3);
-                $scope.server.getUserDoc();
-                $scope.peopledb.getInfo();
-            });
-    };
-    
+    $scope.peopledb.query("example-app", "all_people", { include_docs: true, descending: true, limit: 8 });
+        
     function setError(data, status) {
         $scope.errordata = { "status": status, "data": data };
     }
@@ -141,17 +145,13 @@ function ctrlGBook1($scope, $filter, cornercouch) {
 
     $scope.submitEntry = function() {
         
-        var now = new Date(); 
-        var now = new Date(now.getUTCFullYear(), now.getUTCMonth()  , now.getUTCDate(),
-                           now.getUTCHours()   , now.getUTCMinutes(), now.getUTCSeconds());
-
-        $scope.newentry.utc = $filter('date')(now, 'yyyy-MM-dd HH:mm:ss');
+        $scope.newentry.personalInformation.firstName = "<new people>";
         
         $scope.newentry.save().success( function() {
             delete $scope.errordata;
             $scope.detail = $scope.newentry;
             $scope.newentry = $scope.peopledb.newDoc();
-            $scope.peopledb.query("example-app", "utc_only", { include_docs: true, descending: true, limit: 8 });
+            $scope.peopledb.query("example-app", "all_people", { include_docs: true, descending: true, limit: 8 });
         });
     };
 }
