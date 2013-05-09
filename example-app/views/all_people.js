@@ -1,7 +1,7 @@
 exports.views = {
-    utc_only: {
+    all_people: {
         map: function (doc) {
-             if(doc.utc) emit(doc.utc, null);
+             emit(doc, null);
         }
     }
 };

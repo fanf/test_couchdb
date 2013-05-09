@@ -43,3 +43,13 @@ sudo apt-get install nodejs npm
 
 sudo npm install -g kanso
 
+
+# install and deploy the application
+kanso install && kanso push http://localhost:5984/example
+
+# upload data to the base
+kanso upload data/ http://localhost:5984/example
+
+
+
+
