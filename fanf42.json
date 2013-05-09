@@ -1,0 +1,15 @@
+{
+   "_id": "fanf42",
+   "twitter": {
+       "screenName": "fanf42"
+   },
+   "personalInformation": {
+       "firstName": "François",
+       "lastName": "Armand",
+       "phone": "+33663376055",
+       "email": "far@normation.com"
+   },
+   "company": {
+       "name": "Normation"
+   }
+}

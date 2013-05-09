@@ -1,0 +1,13 @@
+{
+    "name": "example-app",
+    "version": "0.0.1",
+    "description": "The simplest possible app",
+    "attachments": ["index.html", "lib/angular-cornercouch.js"],
+    "modules" : ["modules"],
+    "load" : "modules/utc_only",
+    "dependencies": {
+        "attachments": null,
+        "modules": null,
+        "properties": null       
+    }
+}
