@@ -1,0 +1,23 @@
+{
+   "_id": "%s",
+   "twitter": {
+       "screenName": "%s"
+   }
+, "personalInformation": {
+    "firstName": "%s"
+  , "lastName": "%s"
+  , "email": "%s"
+  , "address": "%s"
+  , "city": "%s"
+  , "state": "%s"
+  , "country": "%s"
+  , "jobTitle": "%s"
+  , "blog": "%s"
+  }
+, "company": {
+    "name": "%s"
+  , "country": "%s"
+  , "address": "%s"
+  , "website": "%s"
+  }
+}
