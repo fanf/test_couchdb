@@ -1,7 +1,7 @@
 exports.views = {
     all_people: {
         map: function (doc) {
-             emit(null, doc);
+             emit(doc._id, doc);
         }
     }
 };

@@ -1,27 +1,43 @@
 <!DOCTYPE html>
-<html ng-app="CouchApp">
+<html ng-app="PeopleApp">
 <head>
   <title>Community DB</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
-</head>
+  <link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/redmond/jquery-ui.css" rel="stylesheet" />
+  <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
+ </head>
 <body style="padding-top: 10px">
 
 <div class="container" ng-controller="ctrlPeople">
     <h2>AngularJS/CouchDB + CornerCouch Community DB</h2>
     
     <h3>Community DB entries <small>(click for detail)</small></h3>
-    <table class="table table-striped">
+    <table 
+        id="peopleGrid" 
+        class="table table-striped" 
+        datatables="overrideOptions" 
+        aa-data="peopledb.rows"
+        fn-row-callback="myCallback"
+        ao-column-defs="columnDefs"
+    >
         <thead>
-        <tr><th>First Name</th><th>Last Name</th><th>Twitter</th></tr>
+        <tr>
+            <th>ID</th>
+            <th>All Json</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Twitter</th>
+        </tr>
         </thead>
-        <tbody>
+<!--         <tbody>
         <tr ng-repeat="row in peopledb.rows" ng-click="rowClick($index)">
             <td class="span2">{{ row.doc.personalInformation.firstName }}</td>
             <td class="span6">{{ row.doc.personalInformation.lastName }}</td>
             <td class="span2">{{ row.doc.twitter.screenName }}</td>
         </tr>
         </tbody>
+ -->    
     </table>
     <ul class="pager">
         <li><a ng-click="prevClick()" ng-show="peopledb.prevRows.length">&lt;&lt;&lt;</a></li>
@@ -30,6 +46,7 @@
     <form name="formNewPeople" class="offset1 span9" ng-submit="submitEntry()">
     <button class="submit" ng-disabled="formNewPeople.$invalid">New people</button>
     </form>
+
     <div class="alert alert-info" ng-show="detail._id">
         <div class="navbar" ng-show="detail._attachments">
         <div class="navbar-inner">
@@ -84,10 +101,76 @@
     <div class="alert alert-error" ng-show="errordata">{{ errordata | json }}</div>
 </div>
 
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<!-- DataTables -->
+<script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
 <script src="lib/angular-cornercouch.js"></script>
+
 <script>
-angular.module('CouchApp', ['CornerCouch']);
+var peopleApp = angular.module('PeopleApp', ['CornerCouch']);
+
+//from http://stackoverflow.com/questions/14242455/using-jquery-datatable-with-angularjs
+//full ex: http://jsfiddle.net/zdam/7kLFU/
+peopleApp.directive('datatables', function() {
+    return function(scope, element, attrs) {
+
+        // apply DataTable options, use defaults if none specified by user
+        var options = {};
+        if (attrs.datatables.length > 0) {
+            options = scope.$eval(attrs.datatables);
+        } else {
+            options = {
+                "bStateSave": true,
+                "iCookieDuration": 2419200, /* 1 month */
+                "bJQueryUI": true,
+                "bPaginate": false,
+                "bLengthChange": false,
+                "bFilter": false,
+                "bInfo": false,
+                "bDestroy": true
+            };
+        }
+
+        // Tell the dataTables plugin what columns to use
+        // We can either derive them from the dom, or use setup from the controller           
+        var explicitColumns = [];
+        element.find('th').each(function(index, elem) {
+            explicitColumns.push($(elem).text());
+        });
+        if (explicitColumns.length > 0) {
+            options["aoColumns"] = explicitColumns;
+        } else if (attrs.aoColumns) {
+            options["aoColumns"] = scope.$eval(attrs.aoColumns);
+        }
+
+        // aoColumnDefs is dataTables way of providing fine control over column config
+        if (attrs.aoColumnDefs) {
+            options["aoColumnDefs"] = scope.$eval(attrs.aoColumnDefs);
+        }
+        
+        if (attrs.fnRowCallback) {
+            options["fnRowCallback"] = scope.$eval(attrs.fnRowCallback);
+        }
+
+        // apply the plugin
+        var dataTable = element.dataTable(options);
+
+        
+        
+        // watch for any changes to our data, rebuild the DataTable
+        scope.$watch(attrs.aaData, function(value) {
+            var val = value || null;
+            if (val) {
+                dataTable.fnClearTable();
+                dataTable.fnAddData(scope.$eval(attrs.aaData));
+            }
+        });
+    };
+});
+
+
 
 function ctrlPeople($scope, $filter, cornercouch) {
     
@@ -95,20 +178,52 @@ function ctrlPeople($scope, $filter, cornercouch) {
     $scope.server.session();
     $scope.peopledb = $scope.server.getDB('example');
     $scope.newentry = $scope.peopledb.newDoc();
-    $scope.peopledb.query("example-app", "all_people", { include_docs: true, descending: true, limit: 8 });
+    $scope.peopledb.query("example-app", "all_people", { include_docs: true, descending: false });
         
     function setError(data, status) {
         $scope.errordata = { "status": status, "data": data };
     }
 
+
+    //define what each column of the grid
+    //get from the JSON people
+    $scope.columnDefs = [
+        { "aTargets":[0], "mData": "doc._id", "bVisible": false, "sWidth": "1px"}
+      , { "aTargets":[1], "mData": "doc", "bVisible": false, "sWidth": "1px"}
+      , { "aTargets":[2], "mData": "doc.personalInformation.firstName", "sDefaultContent": "" }
+      //get("doc.personalInformation.firstName")}
+      , { "aTargets":[3], "mData": "doc.personalInformation.lastName", "sDefaultContent": "" }
+      , { "aTargets":[4], "mData": "doc.twitter.screenName", "sDefaultContent": "" }
+    ]
+
+    $scope.overrideOptions = {
+        "bStateSave": true,
+        "iCookieDuration": 2419200, /* 1 month */
+        "bJQueryUI": true,
+        "bPaginate": true,
+        "bLengthChange": false,
+        "bFilter": true,
+        "bInfo": true,
+        "bDestroy": true
+    };
+
+    $scope.myCallback = function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {            
+        $('td', nRow).bind('click', function() {
+            $scope.$apply(function() {
+                $scope.rowClick(nRow._DT_RowIndex);
+            });
+        });
+        return nRow;
+    };
+
     $scope.rowClick = function(idx) {
+        //getQueryDoc make the link with save/remove/etc
         $scope.detail = $scope.peopledb.getQueryDoc(idx);
-        //New feature in AngularJS 1.1+
-        $scope.formDetail.$setPristine();
+        $scope.formDetail.$setPristine;
     };
     
-    $scope.nextClick = function() { $scope.peopledb.queryNext(); delete $scope.detail; };
-    $scope.prevClick = function() { $scope.peopledb.queryPrev(); delete $scope.detail; };
+    // $scope.nextClick = function() { $scope.peopledb.queryNext(); delete $scope.detail; };
+    // $scope.prevClick = function() { $scope.peopledb.queryPrev(); delete $scope.detail; };
     
     $scope.removeClick = function() {
         $scope.detail.remove()
@@ -122,8 +237,7 @@ function ctrlPeople($scope, $filter, cornercouch) {
         $scope.detail.save()
             .error(setError)
             .success( function () {
-                //New feature in AngularJS 1.1+
-                $scope.formDetail.$setPristine();
+                $scope.formDetail.$setPristine;
             });
     };
     

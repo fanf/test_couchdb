@@ -2,7 +2,10 @@
     "name": "example-app",
     "version": "0.0.1",
     "description": "The simplest possible app",
-    "attachments": ["index.html", "lib/angular-cornercouch.js"],
+    "attachments": [
+        "index.html"
+      , "lib/angular-cornercouch.js"
+    ],
     "modules" : ["views"],
     "load" : "views/all_people",
     "dependencies": {
