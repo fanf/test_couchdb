@@ -5,6 +5,7 @@
     "attachments": [
         "index.html"
       , "lib/angular-cornercouch.js"
+      , "lib/angular-datatables.js"
     ],
     "modules" : ["views"],
     "load" : "views/all_people",
