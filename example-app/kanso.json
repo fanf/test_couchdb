@@ -6,12 +6,13 @@
         "index.html"
       , "lib/angular-cornercouch.js"
       , "lib/angular-datatables.js"
+      , "lib/angular-ui-date.js"
     ],
     "modules" : ["views"],
     "load" : "views/all_people",
     "dependencies": {
         "attachments": null,
         "modules": null,
-        "properties": null       
+        "properties": null
     }
 }

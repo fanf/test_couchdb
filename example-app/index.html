@@ -61,19 +61,20 @@
 
             <fieldset ng-repeat="section in jsonPeopleModel"><legend>{{section.display}}</legend>
                 <div class="control-group" ng-repeat="prop in section.values">
-                    <label for="{{prop.key}}" class="control-label">{{prop.display}}</label>
+                    <label for="{{section.key}}_{{prop.key}}" class="control-label">{{prop.display}}</label>
                     <div class="controls">
-                    <input id="{{prop.key}}" type="text" class="span5" ng-model="detail[section.key][prop.key]">
+                    <input id="{{section.key}}_{{prop.key}}" type="text" class="span5" ng-model="detail[section.key][prop.key]">
                 </div>
                 </div>
             </fieldset>
 
             <fieldset><legend ng-show="detail.actions.length">Actions</legend>
             <div ng-repeat="action in detail.actions">
+                <h4>Action {{$index+1}}</h4>
                 <div class="control-group" ng-repeat="prop in jsonPeopleActionModel">
-                    <label for="{{prop.key}}" class="control-label">{{prop.display}}</label>
+                    <label for="action_{{$index}}_{{prop.key}}" class="control-label">{{prop.display}}</label>
                     <div class="controls">
-                    <input id="{{prop.key}}" type="text" class="span5" ng-model="action[prop.key]">
+                    <input id="action_{{$index}}_{{prop.key}}" type="text" class="span5" ng-model="action[prop.key]">
                 </div>
                 </div>
             </div>
@@ -86,9 +87,16 @@
             <form name="formAddAction" class="form-horizontal">
             <fieldset><legend>Add an action</legend>
                 <div class="control-group" ng-repeat="prop in jsonPeopleActionModel">
-                    <label for="{{prop.key}}" class="control-label">{{prop.display}}</label>
+                    <label for="newAction_{{prop.key}}" class="control-label">{{prop.display}}</label>
                     <div class="controls">
-                    <input id="{{prop.key}}" type="text" class="span5" ng-model="newAction[prop.key]">
+                    <div ng-switch on="prop.type">
+
+                    <input ng-switch-when="datepicker" id="newAction_{{prop.key}}" type="text" class="span5 datepicker" ng-model="newAction[prop.key]" ui-date ui-date-format="yy-mm-dd" />
+                    <textarea ng-switch-when="textarea" id="newAction_{{prop.key}}" type="" class="span5" ng-model="newAction[prop.key]"></textarea>
+                    <input ng-switch-when="checkbox" id="newAction_{{prop.key}}" type="checkbox" class="span5" ng-model="newAction[prop.key]" />
+                    <input ng-switch-default id="newAction_{{prop.key}}" type="text" class="span5" ng-model="newAction[prop.key]" />
+                    </div>
+                    value: {{newAction[prop.key]}}
                 </div>
                 </div>
                 <div class="btn btn-primary span2" style="float: right" ng-click="addActionClick()" ng-show="formAddAction.$dirty">Update</div>
@@ -99,15 +107,16 @@
 </div>
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.js"></script>
 <!-- DataTables -->
 <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.5/angular.min.js"></script>
 <script src="lib/angular-cornercouch.js"></script>
 <script src="lib/angular-datatables.js"></script>
+<script src="lib/angular-ui-date.js"></script>
 
 <script>
-var peopleApp = angular.module('PeopleApp', ['CornerCouch', 'DataTables']);
+var peopleApp = angular.module('PeopleApp', ['CornerCouch', 'DataTables', 'ui.date']);
 
 //from http://stackoverflow.com/questions/14242455/using-jquery-datatable-with-angularjs
 //full ex: http://jsfiddle.net/zdam/7kLFU/
@@ -123,6 +132,7 @@ function ctrlPeople($scope, $filter, cornercouch) {
 
     $scope.newAction = createAction();
 
+
     function setError(data, status) {
         $scope.errordata = { "status": status, "data": data };
     }
@@ -130,8 +140,8 @@ function ctrlPeople($scope, $filter, cornercouch) {
     function createAction() {
         var now = new Date();
         return {
-            "date" : $filter('date')(now, 'yyyy-MM-dd HH:mm:ss')
-          , "fromUs": false
+            "date" : $filter('date')(now, 'yyyy-MM-dd')
+          , "fromUs": "false"
           , "details": ""
         }
     }
@@ -145,24 +155,24 @@ function ctrlPeople($scope, $filter, cornercouch) {
         {   "key"    : "personalInformation"
           , "display": "Personal Information"
           , "values" : [
-                { "key":"firstName", "display":"First Name" }
-              , { "key":"lastName" , "display":"Last Name" }
-              , { "key":"email"    , "display":"Email" }
+                { "key":"firstName", "display": "First Name" }
+              , { "key":"lastName" , "display": "Last Name" }
+              , { "key":"email"    , "display": "Email" }
               , { "key":"address"  , "display": "Personal Address" }
               , { "key":"city"     , "display": "City" }
               , { "key":"state"    , "display": "State" }
-              , { "key":"country"  , "display":"Country" }
-              , { "key":"jobTitle" , "display":"Job Title" }
-              , { "key":"blog"     , "display":"Blog URL" }
+              , { "key":"country"  , "display": "Country" }
+              , { "key":"jobTitle" , "display": "Job Title" }
+              , { "key":"blog"     , "display": "Blog URL" }
             ]
         }
        , {   "key"    : "company"
           , "display": "Company"
           , "values" : [
-                { "key":"name"   , "display":"Name" }
-              , { "key":"country", "display":"Country" }
-              , { "key":"address", "display":"Address" }
-              , { "key":"website", "display":"Web Site" }
+                { "key":"name"   , "display": "Name" }
+              , { "key":"country", "display": "Country" }
+              , { "key":"address", "display": "Address" }
+              , { "key":"website", "display": "Web Site" }
             ]
         }
       , {   "key"    : "twitter"
@@ -174,9 +184,9 @@ function ctrlPeople($scope, $filter, cornercouch) {
     ]
 
     $scope.jsonPeopleActionModel = [
-        { "key":"date"   , "display":"Date" }
-      , { "key":"fromUs" , "display":"From Us" }
-      , { "key":"details", "display":"Details" }
+        { "key":"date"   , "display":"Date"   , "type": "datepicker"}
+      , { "key":"fromUs" , "display":"From Us", "type": "checkbox"  }
+      , { "key":"details", "display":"Details", "type": "textarea"  }
     ]
 
 
