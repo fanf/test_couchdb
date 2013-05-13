@@ -166,7 +166,7 @@ function ctrlPeople($scope, $filter, cornercouch) {
               , { "key":"blog"     , "display": "Blog URL" }
             ]
         }
-       , {   "key"    : "company"
+       , {  "key"    : "company"
           , "display": "Company"
           , "values" : [
                 { "key":"name"   , "display": "Name" }
@@ -182,6 +182,18 @@ function ctrlPeople($scope, $filter, cornercouch) {
             ]
         }
     ]
+
+    //Js is ****. In a.b.c, if b is not defined,
+    //we get an exception (a.b.c = "x" with c undefined is ok)
+    function initPeople(people) {
+        for(var i in $scope.jsonPeopleModel) {
+           var section = $scope.jsonPeopleModel[i];
+            if(!(people).hasOwnProperty(section.key)) {
+                people[section.key] = {};
+            }
+        }
+        return people;
+    }
 
     $scope.jsonPeopleActionModel = [
         { "key":"date"   , "display":"Date"   , "type": "datepicker"}
@@ -224,6 +236,7 @@ function ctrlPeople($scope, $filter, cornercouch) {
     $scope.rowClick = function(idx) {
         //getQueryDoc make the link with save/remove/etc
         $scope.detail = $scope.peopledb.getQueryDoc(idx);
+        initPeople($scope.detail)
         //prepare new action
         $scope.formDetail.$setPristine;
     };
@@ -278,7 +291,7 @@ function ctrlPeople($scope, $filter, cornercouch) {
     $scope.submitEntry = function() {
 
         $scope.newentry.personalInformation = { "firstName":"<new people>"};
-
+        initPeople($scope.newentry);
         $scope.newentry.save().success( function() {
             delete $scope.errordata;
             $scope.detail = $scope.newentry;
