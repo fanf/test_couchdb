@@ -96,7 +96,6 @@
                     <input ng-switch-when="checkbox" id="newAction_{{prop.key}}" type="checkbox" class="span5" ng-model="newAction[prop.key]" />
                     <input ng-switch-default id="newAction_{{prop.key}}" type="text" class="span5" ng-model="newAction[prop.key]" />
                     </div>
-                    value: {{newAction[prop.key]}}
                 </div>
                 </div>
                 <div class="btn btn-primary span2" style="float: right" ng-click="addActionClick()" ng-show="formAddAction.$dirty">Update</div>
