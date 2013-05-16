@@ -3,7 +3,7 @@
 <head>
   <title>Community DB</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+  <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
   <link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/redmond/jquery-ui.css" rel="stylesheet" />
   <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css">
  </head>
@@ -56,7 +56,7 @@
         <div class="alert alert-error" ng-show="errordata">{{ errordata | json }}</div>
 
         <form name="formDetail" class="form-horizontal">
-            <div class="btn btn-primary span2" style="float: right" ng-click="updateClick()" ng-show="formDetail.$dirty">Update</div>
+            <div class="btn btn-primary span2" style="float: right" ng-click="updateClick()" ng-show="formDetail.$dirty">Update people</div>
 
 
             <fieldset ng-repeat="section in jsonPeopleModel"><legend>{{section.display}}</legend>
@@ -80,7 +80,7 @@
             </div>
             </fieldset>
 
-          <div class="btn btn-primary span2" style="float: right" ng-click="updateClick()" ng-show="formDetail.$dirty">Update</div>
+          <div class="btn btn-primary span2" style="float: right" ng-click="updateClick()" ng-show="formDetail.$dirty">Update people</div>
         </form>
 
         <div>
@@ -98,7 +98,7 @@
                     </div>
                 </div>
                 </div>
-                <div class="btn btn-primary span2" style="float: right" ng-click="addActionClick()" ng-show="formAddAction.$dirty">Update</div>
+                <div class="btn btn-primary span2" style="float: right" ng-click="addActionClick()" ng-show="formAddAction.$dirty">Create action</div>
             </fieldset>
             </form>
         </div>
@@ -123,11 +123,11 @@ var peopleApp = angular.module('PeopleApp', ['CornerCouch', 'DataTables', 'ui.da
 
 function ctrlPeople($scope, $filter, cornercouch) {
 
-    $scope.server = cornercouch();
+    $scope.server = cornercouch("http://localhost:5984");
     $scope.server.session();
-    $scope.peopledb = $scope.server.getDB('example');
+    $scope.peopledb = $scope.server.getDB('people');
     $scope.newentry = $scope.peopledb.newDoc();
-    $scope.peopledb.query("example-app", "all_people", { include_docs: true, descending: false });
+    $scope.peopledb.query("people-views", "all_people", { include_docs: true, descending: false });
 
     $scope.newAction = createAction();
 
@@ -177,7 +177,8 @@ function ctrlPeople($scope, $filter, cornercouch) {
       , {   "key"    : "twitter"
           , "display": "Twitter"
           , "values" : [
-                { "key":"screenName", "display": "Screen Name" }
+                {  "key":"screenName", "display": "Screen Name" }
+		,{ "key":"nbFollowers", "display": "Number of followers" }
             ]
         }
     ]
