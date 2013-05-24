@@ -122,10 +122,10 @@ var peopleApp = angular.module('PeopleApp', ['CornerCouch', 'DataTables', 'ui.da
 
 
 function ctrlPeople($scope, $filter, cornercouch) {
-
-    $scope.server = cornercouch("http://localhost:5984");
+//    $scope.server = cornercouch("http://localhost:5984");
+    $scope.server = cornercouch();
     $scope.server.session();
-    $scope.peopledb = $scope.server.getDB('people');
+    $scope.peopledb = $scope.server.getDB('couchdb/people');
     $scope.newentry = $scope.peopledb.newDoc();
     $scope.peopledb.query("people-views", "all_people", { include_docs: true, descending: false });
 
